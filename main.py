@@ -1,12 +1,5 @@
-from docling.document_converter import DocumentConverter
-
-
 def main():
-    converter = DocumentConverter()
-    result = converter.convert("data/fertil_catalog.pdf")
-    document = result.document
-    text = document.export_to_markdown()
-    print(text)
+    print("main")
 
 
 if __name__ == "__main__":
