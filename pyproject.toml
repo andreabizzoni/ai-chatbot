@@ -4,4 +4,11 @@ version = "0.1.0"
 description = "AI Chatbot"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "docling>=2.66.0",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.1.0",
+]
