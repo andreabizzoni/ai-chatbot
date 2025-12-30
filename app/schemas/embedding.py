@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 
-class Document(BaseModel):
+class EmbeddingRecord(BaseModel):
     id: int = Field(..., description="Unique document identifier")
     content: str = Field(..., description="Document text content")
     embedding: list[float] = Field(..., description="Vector embedding")

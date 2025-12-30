@@ -28,3 +28,6 @@ class Database:
     async def fetchrow(cls, query: str, *args):
         async with cls.pool.acquire() as connection:
             return await connection.fetchrow(query, *args)
+
+
+db = Database()
