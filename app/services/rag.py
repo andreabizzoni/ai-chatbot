@@ -16,10 +16,7 @@ class RAGService:
             query_embedding, top_k=top_k
         )
 
-        if not relevant_docs:
-            return "I don't have enough information to answer that question."
-
-        context = "\n\n".join([doc.content for doc in relevant_docs])
+        context = "\n".join([doc.content for doc in relevant_docs])
 
         messages = [
             {
@@ -33,7 +30,7 @@ class RAGService:
         ]
 
         response = await self.client.chat.completions.create(
-            model=self.model, messages=messages, temperature=0.7
+            model=self.model, messages=messages, temperature=0.0
         )
 
         return response.choices[0].message.content
