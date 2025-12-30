@@ -1,5 +1,5 @@
 from asyncpg import Pool, create_pool
-from app.config import settings
+from app.config.settings import settings
 
 
 class Database:

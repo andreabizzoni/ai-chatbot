@@ -3,7 +3,7 @@ import json
 from app.services.document_parser import DocumentParser
 from app.services.embeddings import embedding_service
 from app.database.connection import db
-from app.config import settings
+from app.config.settings import settings
 
 
 async def ingest_document(pdf_path: str):

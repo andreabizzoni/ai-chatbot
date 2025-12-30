@@ -1,5 +1,5 @@
 from openai import AsyncOpenAI
-from app.config import settings
+from app.config.settings import settings
 
 
 class Embedder:
