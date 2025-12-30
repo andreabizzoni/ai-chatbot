@@ -1,7 +1,7 @@
 from openai import AsyncOpenAI
 from app.config.settings import settings
 from app.database.vector_store import VectorStore
-from langfuse import observe, get_client
+from langfuse import observe, Langfuse
 
 
 class Agent:
@@ -10,7 +10,11 @@ class Agent:
         self.chat_model = settings.chat_model
         self.dimensions = settings.embedding_dimensions
         self.embedding_model = settings.embedding_model
-        self.langfuse = get_client()
+        self.langfuse = Langfuse(
+            public_key=settings.langfuse_public_key,
+            secret_key=settings.langfuse_secret_key,
+            host=settings.langfuse_base_url,
+        )
 
     async def generate_embedding(self, text: str) -> list[float]:
         response = await self.client.embeddings.create(
@@ -69,6 +73,14 @@ def initialize_agent() -> None:
     global _agent_instance
     if _agent_instance is None:
         _agent_instance = Agent()
+
+
+async def cleanup_agent() -> None:
+    global _agent_instance
+    if _agent_instance is not None:
+        await _agent_instance.client.close()
+        _agent_instance.langfuse.flush()
+        _agent_instance = None
 
 
 def get_agent() -> Agent:
