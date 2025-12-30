@@ -42,7 +42,7 @@ class VectorStore:
 
     @classmethod
     async def similarity_search(
-        cls, query_embedding: list[float], top_k: int = 5, threshold: float = 0.0
+        cls, query_embedding: list[float], top_k: int = 3, threshold: float = 0.0
     ) -> list[EmbeddingRecord]:
         results = await Database.fetch(
             """
