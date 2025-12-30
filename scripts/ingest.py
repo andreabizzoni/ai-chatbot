@@ -1,15 +1,14 @@
 import asyncio
-import json
 from app.services.document_parser import DocumentParser
 from app.services.embeddings import embedding_service
-from app.database.connection import db
+from app.database import Database, VectorStore
 from app.config.settings import settings
 
 
 async def ingest_document(pdf_path: str):
     print(f"Starting document ingestion for: {pdf_path}")
 
-    await db.connect()
+    await Database.connect()
 
     try:
         parser = DocumentParser(max_tokens=settings.embedding_dimensions)
@@ -28,24 +27,16 @@ async def ingest_document(pdf_path: str):
             embeddings = await embedding_service.generate_embeddings_batch(texts)
 
             print("Storing batch in database...")
-            for chunk, embedding in zip(batch, embeddings):
-                await db.execute(
-                    """
-                    INSERT INTO embeddings (content, embedding, metadata)
-                    VALUES ($1, $2::vector, $3::jsonb)
-                    """,
-                    chunk.content,
-                    str(embedding),
-                    json.dumps(chunk.metadata.model_dump()),
-                )
+            metadatas = [chunk.metadata.model_dump() for chunk in batch]
+            await VectorStore.insert_embeddings_batch(texts, embeddings, metadatas)
 
             print(f"Batch {batch_num} completed")
 
-        count = await db.fetchrow("SELECT COUNT(*) as total FROM embeddings")
-        print(f"\nIngestion complete! Total documents in database: {count['total']}")
+        count = await VectorStore.count()
+        print(f"\nIngestion complete! Total documents in database: {count}")
 
     finally:
-        await db.disconnect()
+        await Database.disconnect()
 
 
 if __name__ == "__main__":

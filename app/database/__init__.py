@@ -1,3 +1,4 @@
-from app.database.connection import db
+from app.database.connection import Database
+from app.database.vector_store import VectorStore
 
-__all__ = ["db"]
+__all__ = ["Database", "VectorStore"]
