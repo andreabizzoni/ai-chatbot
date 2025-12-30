@@ -30,6 +30,3 @@ class DocumentParser:
             )
 
         return processed_chunks
-
-
-parser = DocumentParser()

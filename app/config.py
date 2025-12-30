@@ -8,6 +8,3 @@ class Settings(BaseSettings):
     chat_model: str = "gpt-4o-mini"
     embedding_dimensions: int = 1536
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
-
-
-settings = Settings()
