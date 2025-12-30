@@ -1,6 +1,6 @@
 import asyncio
-from app.services.document_parser import DocumentParser
-from app.services.embeddings import embedding_service
+from app.utils.document_parser import DocumentParser
+from app.agent.agent import Agent
 from app.database import Database, VectorStore
 from app.config.settings import settings
 
@@ -9,6 +9,7 @@ async def ingest_document(pdf_path: str):
     print(f"Starting document ingestion for: {pdf_path}")
 
     await Database.connect()
+    agent = Agent()
 
     try:
         parser = DocumentParser(max_tokens=settings.embedding_dimensions)
@@ -24,7 +25,7 @@ async def ingest_document(pdf_path: str):
 
             batch_num = i // batch_size + 1
             print(f"Generating embeddings for batch {batch_num}/{total_batches}")
-            embeddings = await embedding_service.generate_embeddings_batch(texts)
+            embeddings = await agent.generate_embeddings_batch(texts)
 
             print("Storing batch in database...")
             metadatas = [chunk.metadata.model_dump() for chunk in batch]
