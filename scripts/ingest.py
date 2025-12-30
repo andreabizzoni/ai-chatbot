@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+import json
 from app.services.document_parser import DocumentParser
 from app.services.embeddings import embedding_service
 from app.database.connection import db
@@ -31,13 +31,12 @@ async def ingest_document(pdf_path: str):
             for chunk, embedding in zip(batch, embeddings):
                 await db.execute(
                     """
-                    INSERT INTO embeddings (content, embedding, metadata, created_at)
-                    VALUES ($1, $2::vector, $3, $4)
+                    INSERT INTO embeddings (content, embedding, metadata)
+                    VALUES ($1, $2::vector, $3::jsonb)
                     """,
                     chunk.content,
                     str(embedding),
-                    chunk.metadata.model_dump(),
-                    datetime.now(),
+                    json.dumps(chunk.metadata.model_dump()),
                 )
 
             print(f"Batch {batch_num} completed")
