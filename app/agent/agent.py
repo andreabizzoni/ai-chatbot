@@ -10,7 +10,6 @@ class Agent:
         self.chat_model = settings.chat_model
         self.dimensions = settings.embedding_dimensions
         self.embedding_model = settings.embedding_model
-        self.vector_store = VectorStore()
         self.langfuse = get_client()
 
     async def generate_embedding(self, text: str) -> list[float]:
@@ -28,7 +27,7 @@ class Agent:
     @observe(capture_input=False, capture_output=False, as_type="generation")
     async def answer_query_with_rag(self, user_query: str) -> str:
         query_embedding = await self.generate_embedding(user_query)
-        relevant_docs = await self.vector_store.similarity_search(
+        relevant_docs = await VectorStore.similarity_search(
             query_embedding=query_embedding
         )
 
@@ -61,3 +60,18 @@ class Agent:
         )
 
         return response.choices[0].message.content
+
+
+_agent_instance: Agent | None = None
+
+
+def initialize_agent() -> None:
+    global _agent_instance
+    if _agent_instance is None:
+        _agent_instance = Agent()
+
+
+def get_agent() -> Agent:
+    if _agent_instance is None:
+        raise RuntimeError("Agent not initialized. Call initialize_agent() first.")
+    return _agent_instance

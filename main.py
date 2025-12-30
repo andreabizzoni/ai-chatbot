@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.routes import router
 from app.database import Database, VectorStore
+from app.agent.agent import initialize_agent
 
 
 @asynccontextmanager
@@ -13,6 +14,9 @@ async def lifespan(app: FastAPI):
 
     if count == 0:
         print("Warning: No embeddings found in database. Run ingestion script first.")
+
+    initialize_agent()
+    print("Agent initialized")
 
     yield
 
