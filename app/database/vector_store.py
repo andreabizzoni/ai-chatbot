@@ -1,3 +1,5 @@
+import json
+from typing import Optional
 from app.database.connection import Database
 from app.schemas.embedding import EmbeddingRecord
 
@@ -44,7 +46,7 @@ class VectorStore:
     ) -> list[EmbeddingRecord]:
         results = await Database.fetch(
             """
-            SELECT id, content, embedding, metadata, created_at,
+            SELECT id, content, embedding::text as embedding, metadata, created_at,
                    1 - (embedding <=> $1::vector) as similarity
             FROM embeddings
             WHERE 1 - (embedding <=> $1::vector) > $2
@@ -60,12 +62,38 @@ class VectorStore:
             EmbeddingRecord(
                 id=row["id"],
                 content=row["content"],
-                embedding=list(row["embedding"]),
-                metadata=row["metadata"],
+                embedding=json.loads(row["embedding"]),
+                metadata=row["metadata"]
+                if isinstance(row["metadata"], dict)
+                else json.loads(row["metadata"]),
                 created_at=row["created_at"],
             )
             for row in results
         ]
+
+    @classmethod
+    async def get_by_id(cls, embedding_id: int) -> Optional[EmbeddingRecord]:
+        result = await Database.fetchrow(
+            """
+            SELECT id, content, embedding::text as embedding, metadata, created_at
+            FROM embeddings
+            WHERE id = $1
+            """,
+            embedding_id,
+        )
+
+        if not result:
+            return None
+
+        return EmbeddingRecord(
+            id=result["id"],
+            content=result["content"],
+            embedding=json.loads(result["embedding"]),
+            metadata=result["metadata"]
+            if isinstance(result["metadata"], dict)
+            else json.loads(result["metadata"]),
+            created_at=result["created_at"],
+        )
 
     @classmethod
     async def count(cls) -> int:
